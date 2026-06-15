@@ -278,12 +278,11 @@
         image.width = 2723;
         image.height = 1986;
         image.decoding = "async";
+        image.src = pagePath(index);
 
         if (index === 0) {
-          image.src = pagePath(index);
           image.fetchPriority = "high";
         } else {
-          image.dataset.src = pagePath(index);
           image.loading = "lazy";
         }
 
@@ -295,25 +294,11 @@
       reader.appendChild(fragment);
     }
 
-    function loadAround(index) {
-      for (let offset = -1; offset <= 2; offset += 1) {
-        const target = index + offset;
-        if (target < 0 || target >= totalPages) continue;
-
-        const image = pageEls[target].querySelector("img");
-        if (!image.src && image.dataset.src) {
-          image.src = image.dataset.src;
-          delete image.dataset.src;
-        }
-      }
-    }
-
     function updateControls(index) {
       activeIndex = Math.max(0, Math.min(totalPages - 1, index));
       currentPage.textContent = String(activeIndex + 1);
       prevBtn.disabled = activeIndex === 0;
       nextBtn.disabled = activeIndex === totalPages - 1;
-      loadAround(activeIndex);
     }
 
     function goTo(index) {
@@ -332,7 +317,6 @@
 
     buildPages();
     totalPage.textContent = String(totalPages);
-    loadAround(0);
     updateControls(0);
 
     const firstImage = pageEls[0].querySelector("img");
