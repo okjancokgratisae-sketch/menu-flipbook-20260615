@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#075f61">
   <title>阿西娅菜单</title>
@@ -15,7 +15,7 @@
       --muted: rgba(255, 248, 223, 0.72);
       --line: rgba(255, 248, 223, 0.22);
       --gold: #d9b866;
-      --image-ratio: 1.3704;
+      --image-ratio: 1.3711;
     }
 
     * {
@@ -80,7 +80,7 @@
       height: auto;
       max-width: 100%;
       max-height: calc(100svh - 76px);
-      aspect-ratio: 1920 / 1401;
+      aspect-ratio: 2723 / 1986;
       object-fit: contain;
       background: rgba(255, 255, 255, 0.08);
       box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
@@ -167,6 +167,39 @@
       animation: spin 800ms linear infinite;
     }
 
+    .rotate-tip {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      left: 50%;
+      z-index: 12;
+      transform: translateX(-50%);
+      min-width: 136px;
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      display: none;
+      place-items: center;
+      background: var(--panel);
+      color: var(--text);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      pointer-events: none;
+    }
+
+    @media (orientation: portrait) {
+      .rotate-tip {
+        display: grid;
+      }
+
+      .rotate-tip.is-hidden {
+        display: none;
+      }
+    }
+
     @keyframes spin {
       to {
         transform: rotate(360deg);
@@ -209,6 +242,7 @@
       <div class="counter"><span id="currentPage">1</span>&nbsp;/&nbsp;<span id="totalPage">50</span></div>
       <button id="nextBtn" type="button" aria-label="下一页">&#8250;</button>
     </div>
+    <div class="rotate-tip" id="rotateTip">横屏查看更清晰</div>
     <div class="loading" id="loading" aria-hidden="true">
       <div class="loading-mark"></div>
     </div>
@@ -222,6 +256,7 @@
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const loading = document.getElementById("loading");
+    const rotateTip = document.getElementById("rotateTip");
     const pageEls = [];
     let activeIndex = 0;
     let scrollTimer = 0;
@@ -240,8 +275,8 @@
 
         const image = document.createElement("img");
         image.alt = `阿西娅菜单第 ${index + 1} 页`;
-        image.width = 1920;
-        image.height = 1401;
+        image.width = 2723;
+        image.height = 1986;
         image.decoding = "async";
 
         if (index === 0) {
@@ -312,6 +347,10 @@
     prevBtn.addEventListener("click", () => goTo(activeIndex - 1));
     nextBtn.addEventListener("click", () => goTo(activeIndex + 1));
     reader.addEventListener("scroll", onScroll, { passive: true });
+
+    window.setTimeout(() => {
+      rotateTip.classList.add("is-hidden");
+    }, 4200);
 
     window.addEventListener("resize", () => {
       pageEls[activeIndex].scrollIntoView({ behavior: "auto", block: "nearest", inline: "start" });
