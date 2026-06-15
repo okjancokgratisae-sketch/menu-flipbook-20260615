@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#075f61">
+  <title>阿西娅菜单</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #075f61;
+      --panel: rgba(5, 39, 40, 0.72);
+      --text: #fff8df;
+      --muted: rgba(255, 248, 223, 0.72);
+      --line: rgba(255, 248, 223, 0.22);
+      --gold: #d9b866;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      min-height: 100svh;
+    }
+
+    .app {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-rows: 1fr;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent 18%, transparent 74%, rgba(0, 0, 0, 0.28)),
+        var(--bg);
+    }
+
+    .reader {
+      display: flex;
+      width: 100vw;
+      height: 100svh;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .reader::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page {
+      flex: 0 0 100vw;
+      width: 100vw;
+      height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: max(10px, env(safe-area-inset-top)) 8px max(54px, calc(40px + env(safe-area-inset-bottom)));
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    .page img {
+      display: block;
+      width: min(100%, calc((100svh - 76px) * 1.3701));
+      height: auto;
+      max-width: 100%;
+      max-height: calc(100svh - 76px);
+      aspect-ratio: 1440 / 1051;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .nav {
+      position: fixed;
+      inset-inline: 0;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 46px minmax(84px, auto) 46px;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .nav button,
+    .counter {
+      height: 40px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      pointer-events: auto;
+    }
+
+    .nav button {
+      width: 46px;
+      border-radius: 999px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      font-size: 27px;
+      line-height: 1;
+    }
+
+    .nav button:disabled {
+      opacity: 0.36;
+    }
+
+    .counter {
+      min-width: 86px;
+      padding: 0 16px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .counter span {
+      color: var(--gold);
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      transition: opacity 180ms ease, visibility 180ms ease;
+    }
+
+    .loading.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loading-mark {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(255, 248, 223, 0.18);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 800ms linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 620px) {
+      .page {
+        padding: 8px 8px 52px;
+      }
+
+      .page img {
+        width: min(100%, calc((100svh - 64px) * 1.3701));
+        max-height: calc(100svh - 64px);
+      }
+
+      .nav {
+        inset-inline: 0;
+        bottom: 8px;
+        grid-template-columns: 42px 76px 42px;
+        gap: 8px;
+      }
+
+      .nav button,
+      .counter {
+        height: 36px;
+      }
+
+      .nav button {
+        width: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-label="阿西娅菜单">
+    <div class="reader" id="reader" aria-live="polite"></div>
+    <div class="nav" aria-label="翻页控制">
+      <button id="prevBtn" type="button" aria-label="上一页">&#8249;</button>
+      <div class="counter"><span id="currentPage">1</span>&nbsp;/&nbsp;50</div>
+      <button id="nextBtn" type="button" aria-label="下一页">&#8250;</button>
+    </div>
+    <div class="loading" id="loading" aria-hidden="true">
+      <div class="loading-mark"></div>
+    </div>
+  </main>
+
+  <script>
+    const totalPages = 50;
+    const reader = document.getElementById("reader");
+    const currentPage = document.getElementById("currentPage");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const loading = document.getElementById("loading");
+    const pageEls = [];
+    let activeIndex = 0;
+    let scrollTimer = 0;
+
+    function pagePath(index) {
+      return `pages/page-${String(index + 1).padStart(2, "0")}.webp`;
+    }
+
+    function buildPages() {
+      const fragment = document.createDocumentFragment();
+
+      for (let index = 0; index < totalPages; index += 1) {
+        const section = document.createElement("section");
+        section.className = "page";
+        section.setAttribute("aria-label", `第 ${index + 1} 页`);
+
+        const image = document.createElement("img");
+        image.alt = `阿西娅菜单第 ${index + 1} 页`;
+        image.width = 1440;
+        image.height = 1051;
+        image.decoding = "async";
+
+        if (index === 0) {
+          image.src = pagePath(index);
+          image.fetchPriority = "high";
+        } else {
+          image.dataset.src = pagePath(index);
+          image.loading = "lazy";
+        }
+
+        section.appendChild(image);
+        pageEls.push(section);
+        fragment.appendChild(section);
+      }
+
+      reader.appendChild(fragment);
+    }
+
+    function loadAround(index) {
+      for (let offset = -1; offset <= 2; offset += 1) {
+        const target = index + offset;
+        if (target < 0 || target >= totalPages) continue;
+
+        const image = pageEls[target].querySelector("img");
+        if (!image.src && image.dataset.src) {
+          image.src = image.dataset.src;
+          delete image.dataset.src;
+        }
+      }
+    }
+
+    function updateControls(index) {
+      activeIndex = Math.max(0, Math.min(totalPages - 1, index));
+      currentPage.textContent = String(activeIndex + 1);
+      prevBtn.disabled = activeIndex === 0;
+      nextBtn.disabled = activeIndex === totalPages - 1;
+      loadAround(activeIndex);
+    }
+
+    function goTo(index) {
+      const target = Math.max(0, Math.min(totalPages - 1, index));
+      pageEls[target].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      updateControls(target);
+    }
+
+    function onScroll() {
+      window.clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(() => {
+        const index = Math.round(reader.scrollLeft / Math.max(1, reader.clientWidth));
+        updateControls(index);
+      }, 80);
+    }
+
+    buildPages();
+    loadAround(0);
+    updateControls(0);
+
+    const firstImage = pageEls[0].querySelector("img");
+    firstImage.addEventListener("load", () => {
+      loading.classList.add("is-hidden");
+    }, { once: true });
+
+    if (firstImage.complete) {
+      loading.classList.add("is-hidden");
+    }
+
+    prevBtn.addEventListener("click", () => goTo(activeIndex - 1));
+    nextBtn.addEventListener("click", () => goTo(activeIndex + 1));
+    reader.addEventListener("scroll", onScroll, { passive: true });
+
+    window.addEventListener("resize", () => {
+      pageEls[activeIndex].scrollIntoView({ behavior: "auto", block: "nearest", inline: "start" });
+    });
+  </script>
+</body>
+</html>
