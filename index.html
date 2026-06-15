@@ -15,6 +15,7 @@
       --muted: rgba(255, 248, 223, 0.72);
       --line: rgba(255, 248, 223, 0.22);
       --gold: #d9b866;
+      --image-ratio: 0.4571;
     }
 
     * {
@@ -68,18 +69,18 @@
       height: 100svh;
       display: grid;
       place-items: center;
-      padding: max(10px, env(safe-area-inset-top)) 8px max(54px, calc(40px + env(safe-area-inset-bottom)));
+      padding: max(6px, env(safe-area-inset-top)) 6px max(52px, calc(42px + env(safe-area-inset-bottom)));
       scroll-snap-align: start;
       scroll-snap-stop: always;
     }
 
     .page img {
       display: block;
-      width: min(100%, calc((100svh - 76px) * 1.3701));
+      width: min(100%, calc((100svh - 64px) * var(--image-ratio)));
       height: auto;
       max-width: 100%;
-      max-height: calc(100svh - 76px);
-      aspect-ratio: 1440 / 1051;
+      max-height: calc(100svh - 64px);
+      aspect-ratio: 900 / 1969;
       object-fit: contain;
       background: rgba(255, 255, 255, 0.08);
       box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
@@ -93,7 +94,7 @@
       bottom: max(10px, env(safe-area-inset-bottom));
       z-index: 10;
       display: grid;
-      grid-template-columns: 46px minmax(84px, auto) 46px;
+      grid-template-columns: 46px minmax(92px, auto) 46px;
       justify-content: center;
       align-items: center;
       gap: 10px;
@@ -174,12 +175,12 @@
 
     @media (orientation: landscape) and (max-height: 620px) {
       .page {
-        padding: 8px 8px 52px;
+        padding: 6px 6px 48px;
       }
 
       .page img {
-        width: min(100%, calc((100svh - 64px) * 1.3701));
-        max-height: calc(100svh - 64px);
+        width: min(100%, calc((100svh - 58px) * var(--image-ratio)));
+        max-height: calc(100svh - 58px);
       }
 
       .nav {
@@ -205,7 +206,7 @@
     <div class="reader" id="reader" aria-live="polite"></div>
     <div class="nav" aria-label="翻页控制">
       <button id="prevBtn" type="button" aria-label="上一页">&#8249;</button>
-      <div class="counter"><span id="currentPage">1</span>&nbsp;/&nbsp;50</div>
+      <div class="counter"><span id="currentPage">1</span>&nbsp;/&nbsp;<span id="totalPage">150</span></div>
       <button id="nextBtn" type="button" aria-label="下一页">&#8250;</button>
     </div>
     <div class="loading" id="loading" aria-hidden="true">
@@ -214,9 +215,10 @@
   </main>
 
   <script>
-    const totalPages = 50;
+    const totalPages = 150;
     const reader = document.getElementById("reader");
     const currentPage = document.getElementById("currentPage");
+    const totalPage = document.getElementById("totalPage");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const loading = document.getElementById("loading");
@@ -225,7 +227,7 @@
     let scrollTimer = 0;
 
     function pagePath(index) {
-      return `pages/page-${String(index + 1).padStart(2, "0")}.webp`;
+      return `phone-pages/page-${String(index + 1).padStart(3, "0")}.webp`;
     }
 
     function buildPages() {
@@ -294,6 +296,7 @@
     }
 
     buildPages();
+    totalPage.textContent = String(totalPages);
     loadAround(0);
     updateControls(0);
 

@@ -3,3 +3,9 @@
 
 /pages/*
   Cache-Control: public, max-age=31536000, immutable
+
+/mobile-pages/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/phone-pages/*
+  Cache-Control: public, max-age=31536000, immutable
